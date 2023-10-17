@@ -59,18 +59,6 @@ jobs:
         run: ./ya make yt/yt
 
 
-  check:
-    name: Check
-    needs:
-      - start-vm
-      - docker
-    with:
-      runs-on-value: ${{ needs.start-vm.outputs.label }}
-    secrets:
-      NEBIUS_TESTMO_TOKEN: ${{ secrets.NEBIUS_TESTMO_TOKEN }}
-    uses: ./.github/workflows/check-jobs.yaml
-
-
   stop-vm:
     name: Stop VM
     needs:
