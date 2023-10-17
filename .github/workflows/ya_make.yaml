@@ -38,15 +38,8 @@ jobs:
       - name: Checkout ytsaurus
         uses: actions/checkout@v3
         with:
-          path: ytsaurus
+          path: .
           fetch-depth: 0
-
-      - name: Checkout ydb
-        uses: actions/checkout@v3
-        with:
-          repository: ydb-platform/ydb
-          ref: 1ddfdf5e0386126afd13afb315bd51b7272ec6fa
-          path: ydb
 
   build:
     name: Build
@@ -57,7 +50,6 @@ jobs:
     steps:
       - name: Run ya make
         run: ./ya make yt/yt
-
 
   stop-vm:
     name: Stop VM
