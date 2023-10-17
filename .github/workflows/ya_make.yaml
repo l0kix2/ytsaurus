@@ -62,8 +62,7 @@ jobs:
   stop-vm:
     name: Stop VM
     needs:
-      - start-vm
-      - systest
+      - build
     runs-on: trampoline
     if: ${{ always() }}
     steps:
