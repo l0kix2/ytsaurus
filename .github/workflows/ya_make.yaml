@@ -3,8 +3,7 @@ name: Ya make
 on:
   push:
     branches:
-      - main
-      - stable/[0-9]+\.[0-9]+
+      - ya_make_action
 
 jobs:
   start-vm:
