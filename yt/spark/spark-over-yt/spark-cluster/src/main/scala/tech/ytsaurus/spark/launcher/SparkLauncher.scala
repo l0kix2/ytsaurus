@@ -115,10 +115,10 @@ trait SparkLauncher {
     val thread = runSparkThread(
       masterClass,
       config.memory,
-      namedArgs = Map("host" -> ytHostnameOrIpAddress),
+      namedArgs = Map("host" -> "0.0.0.0"),
       systemProperties = commonJavaOpts ++ reverseProxyUrlProp.toSeq
     )
-    val address = readAddressOrDie("master", config.startTimeout, thread)
+    val address = readAddressOrDie("master", config.startTimeout, thread).copy(host = ytHostnameOrIpAddress)
     MasterService("Master", address, thread)
   }
 
@@ -131,12 +131,12 @@ trait SparkLauncher {
       namedArgs = Map(
         "cores" -> cores.toString,
         "memory" -> memory,
-        "host" -> ytHostnameOrIpAddress
+        "host" -> "0.0.0.0"
       ),
       positionalArgs = Seq(s"spark://${master.hostAndPort}"),
       systemProperties = commonJavaOpts
     )
-    val address = readAddressOrDie("worker", config.startTimeout, thread)
+    val address = readAddressOrDie("worker", config.startTimeout, thread).copy(host = ytHostnameOrIpAddress)
 
     BasicService("Worker", address.hostAndPort, thread)
   }
