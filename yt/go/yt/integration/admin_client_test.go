@@ -21,16 +21,16 @@ func TestAdminClient(t *testing.T) {
 	suite := NewSuite(t)
 
 	RunClientTests(t, []ClientTest{
-		//{Name: "AddRemoveMember", Test: suite.TestAddRemoveMember},
+		{Name: "AddRemoveMember", Test: suite.TestAddRemoveMember},
 		{Name: "SetUserPassword", Test: suite.TestSetUserPassword, SkipRPC: true},
 		{Name: "IssueToken", Test: suite.TestIssueToken, SkipRPC: true},
-		//{Name: "AddRemoveMaintenance", Test: suite.TestAddRemoveMaintenance},
-		//{Name: "TransferAccountResources", Test: suite.TestTransferAccountResources},
-		//{Name: "TransferPoolResources", Test: suite.TestTransferPoolResources, SkipRPC: true},
-		//{Name: "CheckPermission", Test: suite.TestCheckPermission},
-		//{Name: "CheckColumnPermission", Test: suite.TestCheckColumnPermission},
-		//{Name: "BuildMasterSnapshots", Test: suite.TestBuildMasterSnapshots},
-		//{Name: "BuildSnapshot", Test: suite.TestBuildSnapshot},
+		{Name: "AddRemoveMaintenance", Test: suite.TestAddRemoveMaintenance},
+		{Name: "TransferAccountResources", Test: suite.TestTransferAccountResources},
+		{Name: "TransferPoolResources", Test: suite.TestTransferPoolResources, SkipRPC: true},
+		{Name: "CheckPermission", Test: suite.TestCheckPermission},
+		{Name: "CheckColumnPermission", Test: suite.TestCheckColumnPermission},
+		{Name: "BuildMasterSnapshots", Test: suite.TestBuildMasterSnapshots},
+		{Name: "BuildSnapshot", Test: suite.TestBuildSnapshot},
 	})
 }
 
