@@ -6,11 +6,13 @@ import (
 
 	"go.ytsaurus.tech/library/go/core/xerrors"
 	"go.ytsaurus.tech/library/go/ptr"
+
 	"go.ytsaurus.tech/yt/go/guid"
 	"go.ytsaurus.tech/yt/go/proto/client/api/rpc_proxy"
 	"go.ytsaurus.tech/yt/go/ypath"
 	"go.ytsaurus.tech/yt/go/yson"
 	"go.ytsaurus.tech/yt/go/yt"
+	"go.ytsaurus.tech/yt/go/yt/internal"
 )
 
 // Encoder is adapter between typed and untyped layer of API.
@@ -1181,6 +1183,37 @@ func (e *Encoder) RemoveMember(
 	}
 
 	return
+}
+
+func (e *Encoder) SetPassword(
+	ctx context.Context,
+	user string,
+	newPassword string,
+	currentPassword string,
+	options *yt.SetUserPasswordOptions,
+) (err error) {
+	newPasswordSHA256 := internal.EncodeSHA256(newPassword)
+	currentPasswordSHA256 := ""
+	if currentPassword != "" {
+		currentPasswordSHA256 = internal.EncodeSHA256(currentPassword)
+	}
+	return e.SetUserPassword(
+		ctx,
+		user,
+		newPasswordSHA256,
+		currentPasswordSHA256,
+		options,
+	)
+}
+
+func (e *Encoder) SetUserPassword(
+	ctx context.Context,
+	user string,
+	newPasswordSHA256 string,
+	currentPasswordSHA256 string,
+	options *yt.SetUserPasswordOptions,
+) (err error) {
+	return xerrors.Errorf("Unimplemented method: SetUserPassword")
 }
 
 func (e *Encoder) AddMaintenance(

@@ -37,6 +37,7 @@ import (
 	"io"
 
 	"go.ytsaurus.tech/library/go/core/xerrors"
+
 	"go.ytsaurus.tech/yt/go/guid"
 	"go.ytsaurus.tech/yt/go/schema"
 	"go.ytsaurus.tech/yt/go/ypath"
@@ -790,6 +791,8 @@ type RemoveMemberOptions struct {
 	*PrerequisiteOptions
 }
 
+type SetUserPasswordOptions struct{}
+
 type AddMaintenanceOptions struct {
 }
 
@@ -919,6 +922,26 @@ type AdminClient interface {
 		group string,
 		member string,
 		options *RemoveMemberOptions,
+	) (err error)
+
+	// SetPassword is a small wrapper around SetUserPassword which helps
+	// to convert passwords in SHA256 for YTsaurus.
+	SetPassword(
+		ctx context.Context,
+		user string,
+		newPassword string,
+		currentPassword string,
+		options *SetUserPasswordOptions,
+	) (err error)
+
+	// http:verb:"set_user_password"
+	// http:params:"user","new_password_sha256","current_password_sha256"
+	SetUserPassword(
+		ctx context.Context,
+		user string,
+		newPasswordSHA256 string,
+		currentPasswordSHA256 string,
+		options *SetUserPasswordOptions,
 	) (err error)
 
 	// http:verb:"add_maintenance"

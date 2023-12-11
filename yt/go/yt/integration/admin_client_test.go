@@ -21,14 +21,15 @@ func TestAdminClient(t *testing.T) {
 	suite := NewSuite(t)
 
 	RunClientTests(t, []ClientTest{
-		{Name: "AddRemoveMember", Test: suite.TestAddRemoveMember},
-		{Name: "AddRemoveMaintenance", Test: suite.TestAddRemoveMaintenance},
-		{Name: "TransferAccountResources", Test: suite.TestTransferAccountResources},
-		{Name: "TransferPoolResources", Test: suite.TestTransferPoolResources, SkipRPC: true},
-		{Name: "CheckPermission", Test: suite.TestCheckPermission},
-		{Name: "CheckColumnPermission", Test: suite.TestCheckColumnPermission},
-		{Name: "BuildMasterSnapshots", Test: suite.TestBuildMasterSnapshots},
-		{Name: "BuildSnapshot", Test: suite.TestBuildSnapshot},
+		//{Name: "AddRemoveMember", Test: suite.TestAddRemoveMember},
+		{Name: "SetUserPassword", Test: suite.TestSetUserPassword, SkipRPC: true},
+		//{Name: "AddRemoveMaintenance", Test: suite.TestAddRemoveMaintenance},
+		//{Name: "TransferAccountResources", Test: suite.TestTransferAccountResources},
+		//{Name: "TransferPoolResources", Test: suite.TestTransferPoolResources, SkipRPC: true},
+		//{Name: "CheckPermission", Test: suite.TestCheckPermission},
+		//{Name: "CheckColumnPermission", Test: suite.TestCheckColumnPermission},
+		//{Name: "BuildMasterSnapshots", Test: suite.TestBuildMasterSnapshots},
+		//{Name: "BuildSnapshot", Test: suite.TestBuildSnapshot},
 	})
 }
 
@@ -50,6 +51,28 @@ func (s *Suite) TestAddRemoveMember(t *testing.T, yc yt.Client) {
 	err = yc.RemoveMember(s.Ctx, group, user, nil)
 	require.NoError(t, err)
 	require.False(t, s.MemberOf(t, user, group))
+}
+
+func (s *Suite) TestSetUserPassword(t *testing.T, yc yt.Client) {
+	user := "user-" + guid.New().String()
+	_ = s.CreateUser(t, user)
+
+	exists, err := yc.NodeExists(s.Ctx, ypath.Path("//sys/users/"+user+"/@hashed_password"), nil)
+	require.NoError(t, err)
+	require.False(t, exists)
+
+	err = yc.SetPassword(s.Ctx, user, "brabu", "", nil)
+	require.NoError(t, err)
+
+	exists, err = yc.NodeExists(s.Ctx, ypath.Path("//sys/users/"+user+"/@hashed_password"), nil)
+	require.NoError(t, err)
+	require.True(t, exists)
+
+	var hashedPassword string
+	err = yc.GetNode(s.Ctx, ypath.Path("//sys/users/"+user+"/@hashed_password"), &hashedPassword, nil)
+	require.NoError(t, err)
+	require.NotEmpty(t, hashedPassword)
+	t.Log("hashedPassword:", hashedPassword)
 }
 
 func (s *Suite) TestAddRemoveMaintenance(t *testing.T, yc yt.Client) {

@@ -244,6 +244,41 @@ func (e *Encoder) RemoveMember(
 	return
 }
 
+func (e *Encoder) SetPassword(
+	ctx context.Context,
+	user string,
+	newPassword string,
+	currentPassword string,
+	options *yt.SetUserPasswordOptions,
+) (err error) {
+	newPasswordSHA256 := EncodeSHA256(newPassword)
+	currentPasswordSHA256 := ""
+	if currentPassword != "" {
+		currentPasswordSHA256 = EncodeSHA256(currentPassword)
+	}
+	return e.SetUserPassword(
+		ctx,
+		user,
+		newPasswordSHA256,
+		currentPasswordSHA256,
+		options,
+	)
+}
+
+func (e *Encoder) SetUserPassword(
+	ctx context.Context,
+	user string,
+	newPasswordSHA256 string,
+	currentPasswordSHA256 string,
+	options *yt.SetUserPasswordOptions,
+) (err error) {
+	call := e.newCall(NewSetUserPasswordParams(user, newPasswordSHA256, currentPasswordSHA256, options))
+	err = e.do(ctx, call, func(res *CallResult) error {
+		return nil
+	})
+	return
+}
+
 func (e *Encoder) BuildMasterSnapshots(
 	ctx context.Context,
 	options *yt.BuildMasterSnapshotsOptions,

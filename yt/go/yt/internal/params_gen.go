@@ -668,6 +668,12 @@ func writeRemoveMemberOptions(w *yson.Writer, o *yt.RemoveMemberOptions) {
 	writePrerequisiteOptions(w, o.PrerequisiteOptions)
 }
 
+func writeSetUserPasswordOptions(w *yson.Writer, o *yt.SetUserPasswordOptions) {
+	if o == nil {
+		return
+	}
+}
+
 func writeAddMaintenanceOptions(w *yson.Writer, o *yt.AddMaintenanceOptions) {
 	if o == nil {
 		return
@@ -2891,6 +2897,57 @@ func (p *RemoveMemberParams) MutatingOptions() **yt.MutatingOptions {
 
 func (p *RemoveMemberParams) PrerequisiteOptions() **yt.PrerequisiteOptions {
 	return &p.options.PrerequisiteOptions
+}
+
+type SetUserPasswordParams struct {
+	verb                  Verb
+	user                  string
+	newPasswordSHA256     string
+	currentPasswordSHA256 string
+	options               *yt.SetUserPasswordOptions
+}
+
+func NewSetUserPasswordParams(
+	user string,
+	newPasswordSHA256 string,
+	currentPasswordSHA256 string,
+	options *yt.SetUserPasswordOptions,
+) *SetUserPasswordParams {
+	if options == nil {
+		options = &yt.SetUserPasswordOptions{}
+	}
+	optionsCopy := *options
+	return &SetUserPasswordParams{
+		Verb("set_user_password"),
+		user,
+		newPasswordSHA256,
+		currentPasswordSHA256,
+		&optionsCopy,
+	}
+}
+
+func (p *SetUserPasswordParams) HTTPVerb() Verb {
+	return p.verb
+}
+func (p *SetUserPasswordParams) YPath() (ypath.YPath, bool) {
+	return nil, false
+}
+func (p *SetUserPasswordParams) Log() []log.Field {
+	return []log.Field{
+		log.Any("user", p.user),
+		log.Any("newPasswordSHA256", p.newPasswordSHA256),
+		log.Any("currentPasswordSHA256", p.currentPasswordSHA256),
+	}
+}
+
+func (p *SetUserPasswordParams) MarshalHTTP(w *yson.Writer) {
+	w.MapKeyString("user")
+	w.Any(p.user)
+	w.MapKeyString("new_password_sha256")
+	w.Any(p.newPasswordSHA256)
+	w.MapKeyString("current_password_sha256")
+	w.Any(p.currentPasswordSHA256)
+	writeSetUserPasswordOptions(w, p.options)
 }
 
 type AddMaintenanceParams struct {
