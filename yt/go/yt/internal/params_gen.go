@@ -674,6 +674,12 @@ func writeSetUserPasswordOptions(w *yson.Writer, o *yt.SetUserPasswordOptions) {
 	}
 }
 
+func writeIssueTokenOptions(w *yson.Writer, o *yt.IssueTokenOptions) {
+	if o == nil {
+		return
+	}
+}
+
 func writeAddMaintenanceOptions(w *yson.Writer, o *yt.AddMaintenanceOptions) {
 	if o == nil {
 		return
@@ -2948,6 +2954,51 @@ func (p *SetUserPasswordParams) MarshalHTTP(w *yson.Writer) {
 	w.MapKeyString("current_password_sha256")
 	w.Any(p.currentPasswordSHA256)
 	writeSetUserPasswordOptions(w, p.options)
+}
+
+type IssueTokenParams struct {
+	verb           Verb
+	user           string
+	passwordSHA256 string
+	options        *yt.IssueTokenOptions
+}
+
+func NewIssueTokenParams(
+	user string,
+	passwordSHA256 string,
+	options *yt.IssueTokenOptions,
+) *IssueTokenParams {
+	if options == nil {
+		options = &yt.IssueTokenOptions{}
+	}
+	optionsCopy := *options
+	return &IssueTokenParams{
+		Verb("issue_token"),
+		user,
+		passwordSHA256,
+		&optionsCopy,
+	}
+}
+
+func (p *IssueTokenParams) HTTPVerb() Verb {
+	return p.verb
+}
+func (p *IssueTokenParams) YPath() (ypath.YPath, bool) {
+	return nil, false
+}
+func (p *IssueTokenParams) Log() []log.Field {
+	return []log.Field{
+		log.Any("user", p.user),
+		log.Any("passwordSHA256", p.passwordSHA256),
+	}
+}
+
+func (p *IssueTokenParams) MarshalHTTP(w *yson.Writer) {
+	w.MapKeyString("user")
+	w.Any(p.user)
+	w.MapKeyString("password_sha256")
+	w.Any(p.passwordSHA256)
+	writeIssueTokenOptions(w, p.options)
 }
 
 type AddMaintenanceParams struct {

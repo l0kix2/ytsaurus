@@ -1216,6 +1216,33 @@ func (e *Encoder) SetUserPassword(
 	return xerrors.Errorf("Unimplemented method: SetUserPassword")
 }
 
+func (e *Encoder) GetToken(
+	ctx context.Context,
+	user string,
+	password string,
+	options *yt.IssueTokenOptions,
+) (token string, err error) {
+	passwordSHA256 := ""
+	if password != "" {
+		passwordSHA256 = internal.EncodeSHA256(password)
+	}
+	return e.IssueToken(
+		ctx,
+		user,
+		passwordSHA256,
+		options,
+	)
+}
+
+func (e *Encoder) IssueToken(
+	ctx context.Context,
+	user string,
+	passwordSHA256 string,
+	options *yt.IssueTokenOptions,
+) (token string, err error) {
+	return "", xerrors.Errorf("Unimplemented method: IssueToken")
+}
+
 func (e *Encoder) AddMaintenance(
 	ctx context.Context,
 	component yt.MaintenanceComponent,

@@ -793,6 +793,8 @@ type RemoveMemberOptions struct {
 
 type SetUserPasswordOptions struct{}
 
+type IssueTokenOptions struct{}
+
 type AddMaintenanceOptions struct {
 }
 
@@ -925,7 +927,7 @@ type AdminClient interface {
 	) (err error)
 
 	// SetPassword is a small wrapper around SetUserPassword which helps
-	// to convert passwords in SHA256 for YTsaurus.
+	// to encode passwords to SHA256.
 	SetPassword(
 		ctx context.Context,
 		user string,
@@ -943,6 +945,24 @@ type AdminClient interface {
 		currentPasswordSHA256 string,
 		options *SetUserPasswordOptions,
 	) (err error)
+
+	// GetToken is a small wrapper around IssueToken which helps
+	// to encode password to SHA256.
+	GetToken(
+		ctx context.Context,
+		user string,
+		password string,
+		options *IssueTokenOptions,
+	) (token string, err error)
+
+	// http:verb:"issue_token"
+	// http:params:"user","password_sha256"
+	IssueToken(
+		ctx context.Context,
+		user string,
+		passwordSHA256 string,
+		options *IssueTokenOptions,
+	) (token string, err error)
 
 	// http:verb:"add_maintenance"
 	// http:params:"component","address","type","comment"

@@ -279,6 +279,38 @@ func (e *Encoder) SetUserPassword(
 	return
 }
 
+func (e *Encoder) GetToken(
+	ctx context.Context,
+	user string,
+	password string,
+	options *yt.IssueTokenOptions,
+) (token string, err error) {
+	passwordSHA256 := ""
+	if password != "" {
+		passwordSHA256 = EncodeSHA256(password)
+	}
+	return e.IssueToken(
+		ctx,
+		user,
+		passwordSHA256,
+		options,
+	)
+}
+
+func (e *Encoder) IssueToken(
+	ctx context.Context,
+	user string,
+	passwordSHA256 string,
+	options *yt.IssueTokenOptions,
+) (token string, err error) {
+	call := e.newCall(NewIssueTokenParams(user, passwordSHA256, options))
+	err = e.do(ctx, call, func(res *CallResult) error {
+		err = res.decode(&token)
+		return err
+	})
+	return
+}
+
 func (e *Encoder) BuildMasterSnapshots(
 	ctx context.Context,
 	options *yt.BuildMasterSnapshotsOptions,
