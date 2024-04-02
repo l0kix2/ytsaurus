@@ -28,17 +28,11 @@ type DecimalValue struct {
 // The actual decoding process is not performed within this method due to the requirement of precision and scale values,
 // which are necessary to accurately interpret the decimal value but are not available at this stage.
 func (d *DecimalValue) UnmarshalYSON(input []byte) error {
-	d.encodedData = make([]byte, len(input))
-	copy(d.encodedData, input)
-	return nil
+	return yson.Unmarshal(input, &d.encodedData)
 }
 
-func (d *DecimalValue) MarshalYSON(w *yson.Writer) error {
-	output := make([]byte, len(d.encodedData))
-	copy(output, d.encodedData)
-	// TODO: how to serialize it properly? after marshal the value is mirrored
-	w.Bytes(output)
-	return w.Err()
+func (d *DecimalValue) MarshalYSON() ([]byte, error) {
+	return yson.Marshal(d.encodedData)
 }
 
 // DecodedDecimalValue stores decoded decimal value
@@ -237,4 +231,46 @@ func getDecimalByteSize(precision int) (int, error) {
 	default:
 		return 16, nil
 	}
+}
+
+func DecodeDecimalValueFromBytes(d []byte, precision, scale int) (DecodedDecimalValue, error) {
+	expectedSize, err := getDecimalByteSize(precision)
+	if err != nil {
+		return DecodedDecimalValue{}, err
+	}
+
+	if len(d) != expectedSize {
+		return DecodedDecimalValue{}, fmt.Errorf("binary value has invalid length; expected: %d, got: %d", expectedSize, len(d))
+	}
+
+	if value, ok := decodeIfInfiniteValue(d); ok {
+		return value, nil
+	}
+
+	// Decode integer value from binary
+	var intval *big.Int
+	switch len(d) {
+	case 4:
+		intval = big.NewInt(int64(binary.BigEndian.Uint32(d)))
+	case 8:
+		intval = big.NewInt(int64(binary.BigEndian.Uint64(d)))
+	case 16:
+		hi := binary.BigEndian.Uint64(d[:8])
+		lo := binary.BigEndian.Uint64(d[8:])
+		intval = new(big.Int).SetUint64(hi)
+		intval.Lsh(intval, 64).Or(intval, new(big.Int).SetUint64(lo))
+	default:
+		return DecodedDecimalValue{}, fmt.Errorf("unexpected binary value length: %d", len(d))
+	}
+
+	// Adjust the integer based on the encoding scheme
+	adjustment := big.NewInt(1)
+	adjustment.Lsh(adjustment, uint(8*expectedSize-1))
+	intval.Sub(intval, adjustment)
+
+	return DecodedDecimalValue{
+		Precision: precision,
+		Scale:     scale,
+		Value:     intval,
+	}, nil
 }
