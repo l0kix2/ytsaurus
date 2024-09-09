@@ -111,6 +111,10 @@ COPY --from=lib-builder ${PYTHON_ROOT}/dist/* ${PYTHON_ROOT}/dist/
 COPY --from=lib-builder ${ODIN_ROOT} ${ODIN_ROOT}
 COPY --from=lib-builder ${ODIN_ROOT}/../yt/scripts ${ODIN_ROOT}/../yt/scripts
 
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+      build-essential
+
 RUN pip install virtualenv \
     && virtualenv ${VIRTUAL_ENV}
 
